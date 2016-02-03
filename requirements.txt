@@ -1,0 +1,5 @@
+# Base requirements
+falcon==0.3.0
+gunicorn==19.4.1
+mysql-python==1.2.5
+SQLAlchemy==1.0.10
