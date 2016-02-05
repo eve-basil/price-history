@@ -56,8 +56,8 @@ class Prices(Base):
 
     def as_dict(self):
         return {'id': self.type_id, 'system_id': self.system_id,
-                'recorded_at': self.recorded_at.isoformat + "Z",
-                'updated_at': self.updated_at.isoformat + "Z",
+                'recorded_at': self.recorded_at.isoformat() + "Z",
+                'updated_at': self.updated_at.isoformat() + "Z",
                 'buy': {'min': self.buy_min, 'max': self.buy_max,
                         'avg': self.buy_avg, 'median': self.buy_median,
                         'stddev': self.buy_stddev},
@@ -67,7 +67,7 @@ class Prices(Base):
 
     @staticmethod
     def parse(by_id, json):
-        return Prices(type_id=by_id, system=json['system_id'],
+        return Prices(type_id=by_id, system_id=json['system_id'],
                       buy_min=json['buy']['min'],
                       buy_max=json['buy']['max'],
                       buy_avg=json['buy']['avg'],

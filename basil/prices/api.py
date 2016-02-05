@@ -18,7 +18,7 @@ class PricesResource(object):
     @staticmethod
     def on_get(req, resp):
         result = Prices.list(req.context['session'])
-        found = [row.as_dict() for row in result if row.is_clean()]
+        found = [row.as_dict() for row in result]
         resp.body = json.dumps(found)
         resp.status = falcon.HTTP_200
 
@@ -34,7 +34,7 @@ class PriceResource(object):
             resp.status = falcon.HTTP_404
 
     @staticmethod
-    def on_put(req, resp, by_id):
+    def on_post(req, resp, by_id):
         raw_body = req.stream.read()
         if not raw_body:
             raise falcon.HTTPBadRequest('A valid JSON document is required.')
