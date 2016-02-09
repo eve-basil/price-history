@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session
+from sqlalchemy import desc
 
 logging = logging.getLogger(__name__)
 Base = declarative_base()
@@ -52,7 +53,8 @@ class Prices(Base):
 
     @staticmethod
     def get(session, by_id):
-        return session.query(Prices).filter_by(type_id=by_id).first()
+        return session.query(Prices).filter_by(type_id=by_id).order_by(
+                Prices.updated_at.desc()).first()
 
     def as_dict(self):
         return {'id': self.type_id, 'system_id': self.system_id,

@@ -25,4 +25,4 @@ fi
 if [ ! -d log ];then
   mkdir log
 fi
-gunicorn ${OPTS} basil.prices.server &>logs/prices.log
+gunicorn ${OPTS} basil.prices.server >> logs/prices.log 2>&1
