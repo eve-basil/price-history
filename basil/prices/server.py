@@ -1,28 +1,38 @@
-import logging
-
 import api
-from common import database_connector, verify_parameters
+from basil_common import configurables, db, logger
+from . import REQUIRED_OPTIONS
 import storage
 
-logging = logging.getLogger(__name__)
+LOG = logger()
 
 
-def ensure_data(sessions):
+def ensure_data(session):
     try:
-        sessions().query(storage.Prices).first()
-        sessions.remove()
-    except Exception as ex:
-        logging.critical('Could not connect to DB: %s', ex.message)
-        exit(1)
+        first = session.query(storage.Prices).first()
+        session.close()
+        if not first:
+            raise SystemExit('Cannot connect to Prices DB')
+    except ImportError as ex:
+        LOG.fatal(ex.message)
+        raise
+    else:
+        LOG.info('DB Connected')
 
 
 def initialize_app():
-    verify_parameters()
+    configurables.verify(REQUIRED_OPTIONS)
 
-    db = storage.prepare_storage(database_connector())
-    ensure_data(db)
+    db_store = db.prepare_storage(configurables.database_connector(), 7200)
+    ensure_data(db_store())
 
-    session_manager = storage.DBSessionFactory(db)
-    return api.create_api([session_manager])
+    session_manager = db.SessionManager(db_store)
+    app = api.create_api([session_manager])
+
+    # Add a different root error handler based on: are we in production or not
+    error_handler = configurables.root_error_handler()
+    app.add_error_handler(Exception, error_handler)
+
+    return app
+
 
 application = initialize_app()

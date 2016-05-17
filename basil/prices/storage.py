@@ -1,15 +1,14 @@
 import datetime as dt
-import logging
+import json
 
 from sqlalchemy import Column, Float, Integer, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.scoping import scoped_session
-from sqlalchemy import desc
 
-logging = logging.getLogger(__name__)
+from basil_common import logger
+
+LOG = logger()
 Base = declarative_base()
 
 
@@ -43,12 +42,12 @@ class Prices(Base):
         found = Prices.get(session, by_id)
         if found:
             if found.matches(submission):
-                logging.info('unchanged price for id [%s]', by_id)
+                LOG.info('unchanged price for id [%s]', by_id)
                 found.updated_at = dt.datetime.utcnow()
             else:
-                logging.info('updating price for id [%s]', by_id)
+                LOG.info('updating price for id [%s]', by_id)
         else:
-            logging.info('creating price for id [%s]', by_id)
+            LOG.info('creating price for id [%s]', by_id)
         session.add(submission)
 
     @staticmethod
@@ -67,19 +66,22 @@ class Prices(Base):
                          'avg': self.sell_avg, 'median': self.sell_median,
                          'stddev': self.sell_stddev}}
 
+    def json(self):
+        return json.dumps(self.dict())
+
     @staticmethod
-    def parse(by_id, json):
-        return Prices(type_id=by_id, system_id=json['system_id'],
-                      buy_min=json['buy']['min'],
-                      buy_max=json['buy']['max'],
-                      buy_avg=json['buy']['avg'],
-                      buy_median=json['buy']['median'],
-                      buy_stddev=json['buy']['stddev'],
-                      sell_min=json['sell']['min'],
-                      sell_max=json['sell']['max'],
-                      sell_avg=json['sell']['avg'],
-                      sell_median=json['sell']['median'],
-                      sell_stddev=json['sell']['stddev'])
+    def parse(by_id, data_in):
+        return Prices(type_id=by_id, system_id=data_in['system_id'],
+                      buy_min=data_in['buy']['min'],
+                      buy_max=data_in['buy']['max'],
+                      buy_avg=data_in['buy']['avg'],
+                      buy_median=data_in['buy']['median'],
+                      buy_stddev=data_in['buy']['stddev'],
+                      sell_min=data_in['sell']['min'],
+                      sell_max=data_in['sell']['max'],
+                      sell_avg=data_in['sell']['avg'],
+                      sell_median=data_in['sell']['median'],
+                      sell_stddev=data_in['sell']['stddev'])
 
     def matches(self, other):
         return (self.buy_min == other.buy_min and
@@ -94,40 +96,6 @@ class Prices(Base):
                 self.sell_stddev == other.sell_stddev)
 
 
-class DBSessionFactory(object):
-    def __init__(self, sessions):
-        self.sessions = sessions
-
-    def process_request(self, req, resp):
-        logging.debug('Setting up session')
-        req.context['session'] = self.sessions()
-
-    def process_response(self, req, resp, resource):
-        try:
-            # TODO look up a better way to do this /if/
-            resp_status = int(resp.status.split(' ', 1)[0])
-            if resp_status in [201, 202, 204]:
-                try:
-                    logging.debug('Committing')
-                    req.context['session'].commit()
-                except Exception as ex:
-                    logging.warn(ex.message)
-                    logging.debug('Rolling Back due to sql error')
-                    raise ex
-            elif resp_status >= 400:
-                logging.debug('Rolling Back: error status [%d]', resp_status)
-            else:
-                logging.debug('Rolling Back: read-only operation')
-        finally:
-            self.sessions.remove()
-
-
-def prepare_storage(connect_str):
-    engine = create_engine(connect_str, pool_recycle=7200)
-    return scoped_session(sessionmaker(bind=engine))
-
-
 def migrate_db(connect_str):
-    engine = create_engine(connect_str)
+    engine = create_engine(connect_str, pool_recycle=7200)
     Base.metadata.create_all(engine)
-

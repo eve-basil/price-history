@@ -1,6 +1,7 @@
-import common
+from basil_common import configurables
+
 import storage
+from . import REQUIRED_OPTIONS
 
-
-common.verify_parameters()
-storage.migrate_db(common.database_connector())
+configurables.verify(REQUIRED_OPTIONS)
+storage.migrate_db(configurables.database_connector())
