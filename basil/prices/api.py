@@ -36,7 +36,8 @@ class PriceResource(object):
     def on_post(req, resp, by_id):
         raw_body = req.stream.read()
         if not raw_body:
-            raise falcon.HTTPBadRequest('A valid JSON document is required.', '')
+            raise falcon.HTTPBadRequest('A valid JSON document is required.',
+                                        '')
         try:
             body = json.loads(raw_body.decode('utf-8'))
         except UnicodeDecodeError:

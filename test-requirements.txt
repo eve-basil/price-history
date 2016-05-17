@@ -1,0 +1,5 @@
+pytest==2.9.0
+pytest-falcon==0.3.1
+pyhamcrest==1.8.5
+flake8==2.5.4
+contextlib2==0.5.3

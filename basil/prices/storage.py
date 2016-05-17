@@ -33,7 +33,7 @@ class Prices(Base):
     @staticmethod
     def list(session):
         query = session.query(Prices).group_by(Prices.type_id).having(
-                func.max(Prices.updated_at))
+            func.max(Prices.updated_at))
         return query.all()
 
     @staticmethod
@@ -53,7 +53,7 @@ class Prices(Base):
     @staticmethod
     def get(session, by_id):
         return session.query(Prices).filter_by(type_id=by_id).order_by(
-                Prices.updated_at.desc()).first()
+            Prices.updated_at.desc()).first()
 
     def as_dict(self):
         return {'id': self.type_id, 'system_id': self.system_id,
