@@ -19,7 +19,7 @@ class PricesResource(object):
     @staticmethod
     def on_get(req, resp):
         result = Prices.list(req.context['session'])
-        found = [row.as_dict() for row in result]
+        found = [row.dict() for row in result]
         respond(resp, body=json.dumps(found))
 
 

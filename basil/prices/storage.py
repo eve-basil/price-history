@@ -55,7 +55,7 @@ class Prices(Base):
         return session.query(Prices).filter_by(type_id=by_id).order_by(
             Prices.updated_at.desc()).first()
 
-    def as_dict(self):
+    def dict(self):
         return {'id': self.type_id, 'system_id': self.system_id,
                 'recorded_at': self.recorded_at.isoformat() + "Z",
                 'updated_at': self.updated_at.isoformat() + "Z",
