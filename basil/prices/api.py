@@ -26,7 +26,11 @@ class PricesResource(object):
 class PriceResource(object):
     @staticmethod
     def on_get(req, resp, by_id):
-        result = Prices.get(req.context['session'], by_id)
+        resource_id = as_int(by_id)
+        if not resource_id:
+            raise falcon.HTTPBadRequest('Invalid ID',
+                                        'Expected integer identifier')
+        result = Prices.get(req.context['session'], resource_id)
         if result:
             respond(resp, body=result.json())
         else:
@@ -51,3 +55,10 @@ class PriceResource(object):
         Prices.record(req.context['session'], submitted)
         resp.add_link('/prices/%s' % by_id, 'self')
         respond(resp, status=falcon.HTTP_202)
+
+
+def as_int(value):
+    try:
+        return int(value)
+    except ValueError:
+        return None
