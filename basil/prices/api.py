@@ -54,7 +54,7 @@ class PriceResource(object):
         submitted = Prices.parse(by_id, body)
         Prices.record(req.context['session'], submitted)
         resp.add_link('/prices/%s' % by_id, 'self')
-        respond(resp, status=falcon.HTTP_202)
+        respond(resp)
 
 
 def as_int(value):

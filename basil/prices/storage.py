@@ -6,9 +6,9 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy import create_engine
 
-from basil_common import logger
+from basil_common import logging
 
-LOG = logger()
+LOG = logging.getLogger(__name__)
 Base = declarative_base()
 
 
@@ -49,6 +49,8 @@ class Prices(Base):
         else:
             LOG.info('creating price for id [%s]', by_id)
         session.add(submission)
+        session.commit()
+
 
     @staticmethod
     def get(session, by_id):
@@ -97,5 +99,5 @@ class Prices(Base):
 
 
 def migrate_db(connect_str):
-    engine = create_engine(connect_str, pool_recycle=7200)
+    engine = create_engine(connect_str, pool_recycle=1200)
     Base.metadata.create_all(engine)

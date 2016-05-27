@@ -1,9 +1,9 @@
 import api
-from basil_common import configurables, db, logger
+from basil_common import configurables, db, logging
 from . import REQUIRED_OPTIONS
 import storage
 
-LOG = logger()
+LOG = logging.getLogger(__name__)
 
 
 def ensure_data(session):
@@ -22,7 +22,7 @@ def ensure_data(session):
 def initialize_app():
     configurables.verify(REQUIRED_OPTIONS)
 
-    db_store = db.prepare_storage(configurables.database_connector(), 7200)
+    db_store = db.prepare_storage(configurables.database_connector(), 1200)
     ensure_data(db_store())
 
     session_manager = db.SessionManager(db_store)
