@@ -74,4 +74,4 @@ def test_post_by_id(client):
     resp = client.post('/prices/34', payload, headers=json_header)
 
     assert_that(resp, has_property('status',
-                                   equal_to(falcon.HTTP_ACCEPTED)))
+                                   equal_to(falcon.HTTP_OK)))
