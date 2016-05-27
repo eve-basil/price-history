@@ -51,7 +51,6 @@ class Prices(Base):
         session.add(submission)
         session.commit()
 
-
     @staticmethod
     def get(session, by_id):
         return session.query(Prices).filter_by(type_id=by_id).order_by(
